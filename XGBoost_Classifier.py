@@ -8,6 +8,7 @@ from sklearn.metrics import classification_report, confusion_matrix, accuracy_sc
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
+import os
 
 class NoiseClassifierXGBoost:
     def __init__(self, dataset_csv_path, model_save_dir="./noise_classifier_model"):
@@ -88,15 +89,10 @@ class NoiseClassifierXGBoost:
         }
         default_params.update(xgb_params)
         
-        # Extract n_estimators from params
-        n_est = default_params.pop('n_estimators')
-        
+        # Pass n_estimators in the constructor (don't use a non-existent 'epochs' arg)
         self.model = xgb.XGBClassifier(**default_params)
-        self.model.fit(
-            X_train, y_train,
-            epochs=n_est,
-            verbose=False
-        )
+        self.model.fit(X_train, y_train, verbose=False)
+
         
         print(f"✅ Model training complete!")
     
@@ -204,7 +200,7 @@ class NoiseClassifierXGBoost:
             raise ValueError(f"Could not read image: {image_path}")
         
         # Extract features (same as training)
-        from noise_dataset_gen import NoiseDatasetGenerator
+        from Prepare_Folder import NoiseDatasetGenerator
         gen = NoiseDatasetGenerator(".", ".")
         features = gen.extract_features(image)
         
